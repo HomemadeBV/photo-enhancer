@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo AI Enhancer - Food Styling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'NewSpirit';
+            src: url('https://firebasestorage.googleapis.com/v0/b/homemademeals-7040d.appspot.com/o/fonts%2FNewSpirit-BoldCondensed.ttf?alt=media&token=c8efe058-eff2-4ae3-937e-5ec9d0d760cd') format('truetype');
+            font-weight: bold;
+            font-style: normal;
+        }
+
+        :root {
+            --brand-orange: #f97316;
+            --brand-orange-dark: #c2410c;
+            --brand-orange-light: #ffedd5;
+            --text-dark: #2d3748;
+            --text-light: #4a5568;
+            --text-muted: #a0aec0;
+            --bg-light: rgba(255, 255, 255, 0.95);
+            --border-color: #e2e8f0;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+            --anim-curve: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--brand-orange-light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 30px;
+            transition: all 0.8s var(--anim-curve);
+        }
+
+        .input-panel {
+            background: var(--bg-light);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 700px; /* Starts wider */
+            transition: max-width 0.8s var(--anim-curve);
+        }
+
+        /* State when output is shown */
+        .container.view-split .input-panel {
+            max-width: 600px; /* Shrinks to make space */
+        }
+
+        .output-panel {
+            background: var(--bg-light);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            width: 100%;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s var(--anim-curve);
+            display: none; /* Hidden by default */
+        }
+
+        .output-panel.show {
+            opacity: 1;
+            transform: translateX(0);
+            display: block; /* Becomes visible */
+        }
+
+        h1, h2 {
+            font-family: 'NewSpirit', sans-serif;
+            color: var(--brand-orange-dark);
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h2 {
+           font-size: 2em;
+        }
+
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1rem;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            font-family: 'Inter', sans-serif;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--brand-orange);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .photo-upload {
+            border: 3px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background: rgba(247, 250, 252, 0.8);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .photo-upload:hover, .photo-upload.dragover {
+            border-color: var(--brand-orange);
+            background: rgba(251, 146, 60, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        .photo-upload:hover .upload-icon {
+            transform: scale(1.1);
+        }
+
+        .upload-text {
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        /* Ingredients Styles */
+        .ingredients-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .ingredient-input {
+            display: flex;
+            align-items: center;
+            background: rgba(237, 242, 247, 0.8);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            padding: 8px 15px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .ingredient-input:focus-within {
+             border-color: var(--brand-orange);
+             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        .ingredient-input input {
+            border: none;
+            background: transparent;
+            outline: none;
+            padding: 0;
+            font-size: 14px;
+            width: 140px;
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ingredient-remove {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .ingredient-remove:hover {
+            background: #c53030;
+        }
+
+        .add-ingredient {
+            font-family: 'NewSpirit', sans-serif;
+            background: var(--success-green);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .add-ingredient:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 2px solid var(--border-color);
+        }
+
+        .generate-btn {
+            font-family: 'NewSpirit', sans-serif;
+            width: 100%;
+            background: var(--brand-orange);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.2);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(249, 115, 22, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .generate-btn.loading {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            position: relative;
+            overflow: hidden;
+            box-shadow: none;
+        }
+
+        .generate-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.8s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .output-content {
+            text-align: center;
+        }
+        
+        .output-image {
+            width: 100%;
+            height: 400px;
+            background: #f7fafc;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            border: 3px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .output-image.generating {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { background-color: #e2e8f0; }
+            50% { background-color: #f7fafc; }
+        }
+
+        .output-placeholder {
+            color: var(--text-muted);
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .download-btn {
+            font-family: 'NewSpirit', sans-serif;
+            background: var(--success-green);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1250px) {
+             .container {
+                flex-direction: column;
+                align-items: center;
+            }
+            .container.view-split .input-panel,
+            .input-panel {
+                max-width: 700px;
+            }
+            .output-panel {
+                transform: translateY(50px);
+            }
+             .output-panel.show {
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .input-panel, .output-panel {
+                padding: 20px;
+            }
+            .controls-row {
+                flex-direction: column;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <!-- Input Panel -->
+        <div class="input-panel">
+            <h1>🍽️ Photo AI Enhancer</h1>
+            
+            <div class="form-group">
+                <label for="dishName">Dish Name</label>
+                <input type="text" id="dishName" placeholder="e.g., Grilled Salmon with Asparagus">
+            </div>
+
+            <div class="form-group">
+                <label for="photoUpload">Upload Photo</label>
+                <div class="photo-upload" id="photoUpload">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-subtext">PNG, JPG up to 10MB</div>
+                    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                </div>
+                <img id="previewImage" class="preview-image" style="display: none;" alt="Uploaded food preview">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" placeholder="Describe your dish - cooking method, presentation style, key features..."></textarea>
+            </div>
+            
+            <!-- Ingredients Section -->
+            <div class="form-group">
+                <label>Ingredients</label>
+                <div class="ingredients-container" id="ingredientsContainer">
+                    <!-- Ingredient inputs will be added here by JavaScript -->
+                </div>
+                <button class="add-ingredient" onclick="addIngredient()">+ Add Ingredient</button>
+            </div>
+
+            <div class="controls-row" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="ambience">Ambience</label>
+                    <select id="ambience">
+                        <option value="soft_window_light">Soft Window Light, 50mm f/1.2</option>
+                        <option value="studio_lighting_100mm">Studio Lighting, 85mm f/2.0</option>
+                        <option value="natural_daylight">Natural Daylight, 35mm f/1.8</option>
+                        <option value="studio_light_100mm">Studio Light, 85mm f/2.0</option>
+                        <option value="natural_side_light">Natural Side Light</option>
+                        <option value="warm_directional_light">Warm Directional Light</option>
+                        <option value="moody_softbox">Moody Softbox</option>
+                        <option value="natural_light">Natural Light</option>
+                        <option value="directional_light">Directional Light</option>
+                        <option value="dramatic_studio_light">Dramatic Studio Light</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="background">Background</label>
+                    <select id="background">
+                        <option value="cozy_wooden_table">Cozy Wooden Table</option>
+                        <option value="high_contrast_studio">High-Contrast Studio</option>
+                        <option value="bright_and_airy">Bright and Airy</option>
+                        <option value="neutral_modern_look">Neutral Modern Look</option>
+                        <option value="luxury_marble_surface">Luxury Marble Surface</option>
+                        <option value="rustic_wooden_charm">Rustic Wooden Charm</option>
+                        <option value="moody_concrete_background">Moody Concrete Background</option>
+                        <option value="fresh_pastel_vibes">Fresh Pastel Vibes</option>
+                        <option value="earthy_slate_surface">Earthy Slate Surface</option>
+                        <option value="bold_black_backdrop">Bold Black Backdrop</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="generate-btn" id="generateBtn" onclick="generateImage()">
+                Enhance Photo
+            </button>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="output-panel" id="outputPanel">
+            <div class="output-content">
+                <h2>Enhanced Result</h2>
+                <div class="output-image" id="outputImage">
+                    <div class="output-placeholder">Your enhanced photo will appear here</div>
+                </div>
+                <button class="download-btn" id="downloadBtn" style="display: none;" onclick="downloadImage()">Download Photo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFile = null;
+
+        // --- Photo upload functionality ---
+        const photoUpload = document.getElementById('photoUpload');
+        const fileInput = document.getElementById('fileInput');
+        const previewImage = document.getElementById('previewImage');
+        
+        photoUpload.addEventListener('click', () => fileInput.click());
+
+        photoUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            photoUpload.classList.add('dragover');
+        });
+
+        photoUpload.addEventListener('dragleave', () => {
+            photoUpload.classList.remove('dragover');
+        });
+
+        photoUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            photoUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        function handleFileUpload(file) {
+            if (file && file.type.startsWith('image/')) {
+                uploadedFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                    photoUpload.querySelector('.upload-text').style.display = 'none';
+                    photoUpload.querySelector('.upload-subtext').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                 alert('Please upload a valid image file (PNG, JPG).');
+            }
+        }
+        
+        // --- Ingredients functionality ---
+        function addIngredient(focus = true) {
+            const container = document.getElementById('ingredientsContainer');
+            const newIngredient = document.createElement('div');
+            newIngredient.className = 'ingredient-input';
+            newIngredient.innerHTML = `
+                <input type="text" placeholder="Enter ingredient" onkeypress="handleIngredientEnter(event, this)">
+                <button class="ingredient-remove" onclick="removeIngredient(this)">×</button>
+            `;
+            container.appendChild(newIngredient);
+            if (focus) {
+                newIngredient.querySelector('input').focus();
+            }
+        }
+
+        function removeIngredient(button) {
+            const container = document.getElementById('ingredientsContainer');
+            // Prevent removing the very last input field
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            } else {
+                // Clear the value of the last input instead of removing it
+                button.parentElement.querySelector('input').value = '';
+            }
+        }
+
+        function handleIngredientEnter(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                if (input.value.trim()) {
+                    addIngredient();
+                }
+            }
+        }
+        
+        // Initialize with one ingredient input on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            addIngredient(false); // Add initial input without focusing it
+        });
+
+
+        // --- Main generation functionality ---
+        function generateImage() {
+            const generateBtn = document.getElementById('generateBtn');
+            const mainContainer = document.getElementById('mainContainer');
+            const outputPanel = document.getElementById('outputPanel');
+            const outputImage = document.getElementById('outputImage');
+            const downloadBtn = document.getElementById('downloadBtn');
+
+            // --- 1. Validate inputs ---
+            const dishName = document.getElementById('dishName').value;
+            if (!dishName.trim()) {
+                alert('Please enter a dish name.');
+                return;
+            }
+            if (!uploadedFile) {
+                alert('Please upload a photo to enhance.');
+                return;
+            }
+
+            // --- 2. Start loading and animation state ---
+            generateBtn.textContent = 'Generating...';
+            generateBtn.classList.add('loading');
+            generateBtn.disabled = true;
+            downloadBtn.style.display = 'none';
+
+            // --- 3. Trigger the animation ---
+            mainContainer.classList.add('view-split');
+            outputPanel.classList.add('show');
+            outputImage.classList.add('generating');
+            outputImage.innerHTML = '<div class="output-placeholder">✨ Enhancing your photo...</div>';
+            
+            // --- 4. Simulate generation process ---
+            setTimeout(() => {
+                // --- 5. Update UI with result ---
+                outputImage.classList.remove('generating');
+                const finalImageSrc = previewImage.src; // Use the same image for simulation
+                outputImage.innerHTML = `
+                    <img src="${finalImageSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;" alt="Enhanced dish photo">
+                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(16, 185, 129, 0.9); color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: 600;">✨ Enhanced</div>
+                `;
+                
+                // Reset button and show download button
+                generateBtn.textContent = 'Enhance Photo';
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+                downloadBtn.style.display = 'inline-block';
+
+            }, 3000); // Simulate a 3-second generation time
+        }
+
+        function downloadImage() {
+            const outputImgElement = document.querySelector('#outputImage img');
+            if (!outputImgElement) {
+                alert('No image to download!');
+                return;
+            }
+            // In a real implementation, this would download the generated image.
+            // For this simulation, we'll download the uploaded source image.
+            const link = document.createElement('a');
+            link.href = outputImgElement.src;
+            link.download = 'enhanced-food-photo.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+    </script>
+</body>
+</html>
