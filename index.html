@@ -375,19 +375,19 @@
 
         @media (max-width: 1250px) {
              .container {
-                flex-direction: column;
-                align-items: center;
-            }
-            .container.view-split .input-panel,
-            .input-panel {
-                max-width: 700px;
-            }
-            .output-panel {
-                transform: translateY(50px);
-            }
-             .output-panel.show {
-                transform: translateY(0);
-            }
+                 flex-direction: column;
+                 align-items: center;
+             }
+             .container.view-split .input-panel,
+             .input-panel {
+                 max-width: 700px;
+             }
+             .output-panel {
+                 transform: translateY(50px);
+             }
+              .output-panel.show {
+                 transform: translateY(0);
+             }
         }
         
         @media (max-width: 768px) {
@@ -410,7 +410,6 @@
 <body>
 
     <div class="container" id="mainContainer">
-        <!-- Input Panel -->
         <div class="input-panel">
             <h1>🍽️ Photo AI Enhancer</h1>
             
@@ -435,12 +434,10 @@
                 <textarea id="description" placeholder="Describe your dish - cooking method, presentation style, key features..."></textarea>
             </div>
             
-            <!-- Ingredients Section -->
             <div class="form-group">
                 <label>Ingredients</label>
                 <div class="ingredients-container" id="ingredientsContainer">
-                    <!-- Ingredient inputs will be added here by JavaScript -->
-                </div>
+                    </div>
                 <button class="add-ingredient" onclick="addIngredient()">+ Add Ingredient</button>
             </div>
 
@@ -482,7 +479,6 @@
             </button>
         </div>
 
-        <!-- Output Panel -->
         <div class="output-panel" id="outputPanel">
             <div class="output-content">
                 <h2>Enhanced Result</h2>
@@ -495,6 +491,8 @@
     </div>
 
     <script>
+        const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyyuoyMvMSKCcgWnHwuCTQZcRVNcHQaZrvsEVlNfLIx0Pl7nRZNXbMc4GE6TwJVr0A/exec';
+        
         let uploadedFile = null;
 
         // --- Photo upload functionality ---
